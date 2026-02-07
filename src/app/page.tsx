@@ -3,17 +3,18 @@ import Link from "next/link";
 export default function Home() {
   return (
     <main style={{ padding: 24 }}>
-      <h1>Početna</h1>
+      <h1>Aplikacija za rezervaciju restorana</h1>
 
-      <nav style={{ display: "flex", gap: 12, marginTop: 12 }}>
-        <Link href="/">Home</Link>
+      <p style={{ marginTop: 12 }}>
+        Rezervišite sto u restoranu brzo i jednostavno, uz mogućnost
+        unaprednog naručivanja hrane.
+      </p>
+
+      <nav style={{ display: "flex", gap: 16, marginTop: 24 }}>
         <Link href="/login">Login</Link>
         <Link href="/contact">Kontakt</Link>
       </nav>
-
-      <p style={{ marginTop: 16 }}>
-        Dobrodošli na početnu stranicu.
-      </p>
     </main>
   );
 }
+
