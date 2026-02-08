@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { signToken, getCookieName } from "@/lib/auth";
+import { signToken } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
       { status: 200 }
     );
 
-    res.cookies.set(getCookieName(), token, {
+    res.cookies.set("token", token, {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
