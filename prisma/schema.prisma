@@ -21,105 +21,90 @@ enum ReservationStatus {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  name         String
-  email        String        @unique
-  passwordHash String
-  role         Role          @default(GUEST)
+  id              Int      @id @default(autoincrement())
+  ime             String
+  email           String   @unique
+  lozinka         String
+  uloga           Role
+  datumKreiranja  DateTime @default(now())
 
   reservations Reservation[]
   restaurants  Restaurant[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Restaurant {
-  id           String   @id @default(cuid())
-  name         String
-  address      String
-  description  String?
-  workingHours String?
+  id              Int     @id @default(autoincrement())
+  naziv           String
+  adresa          String
+  opis            String?
+  radnoVreme      String
+  administratorId Int
 
-  managerId String
-  manager   User     @relation(fields: [managerId], references: [id])
+  administrator User @relation(fields: [administratorId], references: [id])
 
   tables    Table[]
   menuItems MenuItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Table {
-  id         String @id @default(cuid())
-  number     Int
-  capacity   Int
+  id            Int @id @default(autoincrement())
+  brojStola     Int
+  kapacitet     Int
+  restoranId    Int
 
-  restaurantId String
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-
+  restaurant   Restaurant @relation(fields: [restoranId], references: [id])
   reservations Reservation[]
 
-  @@unique([restaurantId, number])
+  @@unique([restoranId, brojStola])
 }
 
 model MenuItem {
-  id          String @id @default(cuid())
-  name        String
-  description String?
-  price       Int
-  type        String
+  id          Int     @id @default(autoincrement())
+  naziv       String
+  opis        String
+  cena        Float
+  tip         String
+  restoranId  Int
 
-  restaurantId String
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-
+  restaurant Restaurant @relation(fields: [restoranId], references: [id])
   orderItems OrderItem[]
 }
 
 model Reservation {
-  id        String @id @default(cuid())
+  id         Int      @id @default(autoincrement())
+  dateTime   DateTime
+  brojOsoba  Int
+  status     String
 
- 
-  dateTime  DateTime
-  partySize Int
-  status    ReservationStatus @default(PENDING)
+  userId  Int
+  tableId Int
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  tableId String
-  table   Table  @relation(fields: [tableId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+  table Table @relation(fields: [tableId], references: [id])
 
   order Order?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([tableId, dateTime])
   @@unique([userId, tableId, dateTime])
 }
 
 model Order {
-  id            String @id @default(cuid())
-  note          String?
-  totalPrice    Int    @default(0)
+  id             Int     @id @default(autoincrement())
+  ukupnaCena     Float
+  napomena       String?
+  reservationId  Int     @unique
 
-  reservationId String @unique
-  reservation   Reservation @relation(fields: [reservationId], references: [id])
-
-  items OrderItem[]
+  reservation Reservation @relation(fields: [reservationId], references: [id])
+  items        OrderItem[]
 }
 
 model OrderItem {
-  id         String @id @default(cuid())
-  quantity   Int
+  id         Int @id @default(autoincrement())
+  kolicina   Int
+  orderId    Int
+  menuItemId Int
 
-  orderId String
-  order   Order @relation(fields: [orderId], references: [id])
-
-  menuItemId String
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id])
+  menuItem  MenuItem @relation(fields: [menuItemId], references: [id])
 
   @@unique([orderId, menuItemId])
 }

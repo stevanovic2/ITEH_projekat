@@ -1,0 +1,55 @@
+import { prisma } from "@/lib/db";
+import { NextResponse } from "next/server";
+
+// GET /api/tables
+// Poenta: vraća sve stolove (sa informacijom kom restoranu pripadaju)
+export async function GET() {
+  const tables = await prisma.table.findMany({
+    include: {
+      restaurant: {
+        select: {
+          id: true,
+          naziv: true,
+        },
+      },
+    },
+    orderBy: { id: "asc" },
+  });
+
+  return NextResponse.json(tables);
+}
+
+// POST /api/tables
+// Poenta: dodaje novi sto u restoran
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    if (!body.restoranId || !body.brojStola || !body.kapacitet) {
+      return NextResponse.json(
+        { error: "Obavezno: restoranId, brojStola, kapacitet" },
+        { status: 400 }
+      );
+    }
+
+    const table = await prisma.table.create({
+      data: {
+        restoranId: Number(body.restoranId),
+        brojStola: Number(body.brojStola),
+        kapacitet: Number(body.kapacitet),
+      },
+    });
+
+    return NextResponse.json(table, { status: 201 });
+  } catch (e: any) {
+    // unique constraint: isti broj stola u istom restoranu
+    if (e?.code === "P2002") {
+      return NextResponse.json(
+        { error: "Sto sa tim brojem već postoji u tom restoranu" },
+        { status: 409 }
+      );
+    }
+
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
