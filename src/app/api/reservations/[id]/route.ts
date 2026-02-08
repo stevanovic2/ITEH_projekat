@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/guards";
+
 
 function parseId(params: { id: string }) {
   const id = Number(params.id);
@@ -30,6 +32,10 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 // PUT /api/reservations/:id
 // MVP: dozvoljavamo izmenu statusa i broja osoba
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireAuth();
+  if (!guard.ok) return guard.response;
+
+  
   const id = parseId(params);
   if (!id) return NextResponse.json({ error: "Nevalidan id" }, { status: 400 });
 
@@ -115,6 +121,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 // DELETE /api/reservations/:id
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireAuth();
+  if (!guard.ok) return guard.response;
+
+  
   const id = parseId(params);
   if (!id) return NextResponse.json({ error: "Nevalidan id" }, { status: 400 });
 

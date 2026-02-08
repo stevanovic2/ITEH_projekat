@@ -1,9 +1,15 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireRole } from "@/lib/guards";
+
 
 // GET /api/users
 // Poenta: vraća sve korisnike (bez lozinke)
 export async function GET() {
+  const guard = await requireRole(["ADMIN"]);
+  if (!guard.ok) return guard.response;
+
+
   const users = await prisma.user.findMany({
     select: {
       id: true,

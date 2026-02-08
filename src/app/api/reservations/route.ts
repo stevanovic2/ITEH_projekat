@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/guards";
+
 
 // GET /api/reservations
 // Poenta: vraća rezervacije + povezane podatke (user, sto, restoran)
@@ -26,17 +28,20 @@ export async function GET() {
 // Poenta: kreira novu rezervaciju uz osnovne provere
 export async function POST(req: Request) {
   try {
+    const guard = await requireAuth();
+    if (!guard.ok) return guard.response;
+
     const body = await req.json();
 
     // obavezna polja
-    if (!body.userId || !body.tableId || !body.dateTime || !body.brojOsoba) {
+    if (!body.tableId || !body.dateTime || !body.brojOsoba) {
       return NextResponse.json(
-        { error: "Obavezno: userId, tableId, dateTime, brojOsoba" },
+        { error: "Obavezno: tableId, dateTime, brojOsoba" },
         { status: 400 }
       );
     }
 
-    const userId = Number(body.userId);
+    const userId = Number(guard.auth.userId);
     const tableId = Number(body.tableId);
     const brojOsoba = Number(body.brojOsoba);
 

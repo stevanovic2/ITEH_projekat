@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireRole } from "@/lib/guards";
+
 
 // GET /api/restaurants
 export async function GET() {
@@ -13,6 +15,9 @@ export async function GET() {
 // POST /api/restaurants
 export async function POST(req: Request) {
   try {
+    const guard = await requireRole(["MANAGER", "ADMIN"]);
+    if (!guard.ok) return guard.response;
+
     const body = await req.json();
 
     // minimalna validacija (da ne upisuje prazno)

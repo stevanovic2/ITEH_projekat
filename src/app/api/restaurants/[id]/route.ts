@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireRole } from "@/lib/guards";
+
 
 function toId(params: { id: string }) {
   const id = Number(params.id);
@@ -25,6 +27,9 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 
 // PUT /api/restaurants/:id
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireRole(["MANAGER", "ADMIN"]);
+  if (!guard.ok) return guard.response;
+  
   const id = toId(params);
   if (!id) return NextResponse.json({ error: "Nevalidan id" }, { status: 400 });
 
@@ -52,6 +57,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 // DELETE /api/restaurants/:id
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireRole(["MANAGER", "ADMIN"]);
+  if (!guard.ok) return guard.response;
+  
   const id = toId(params);
   if (!id) return NextResponse.json({ error: "Nevalidan id" }, { status: 400 });
 

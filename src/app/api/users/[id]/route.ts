@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireRole } from "@/lib/guards";
+
 
 function parseId(params: { id: string }) {
   const id = Number(params.id);
@@ -8,6 +10,10 @@ function parseId(params: { id: string }) {
 
 // GET /api/users/:id
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireRole(["ADMIN"]);
+  if (!guard.ok) return guard.response;
+
+  
   const id = parseId(params);
   if (!id) return NextResponse.json({ error: "Nevalidan id" }, { status: 400 });
 
@@ -29,6 +35,10 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
 
 // PUT /api/users/:id
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireRole(["ADMIN"]);
+  if (!guard.ok) return guard.response;
+
+  
   const id = parseId(params);
   if (!id) return NextResponse.json({ error: "Nevalidan id" }, { status: 400 });
 
@@ -82,6 +92,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
 // DELETE /api/users/:id
 export async function DELETE(_req: Request, { params }: { params: { id: string } }) {
+  const guard = await requireRole(["ADMIN"]);
+  if (!guard.ok) return guard.response;
+
+  
   const id = parseId(params);
   if (!id) return NextResponse.json({ error: "Nevalidan id" }, { status: 400 });
 

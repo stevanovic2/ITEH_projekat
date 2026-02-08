@@ -1,5 +1,7 @@
 import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { requireRole } from "@/lib/guards";
+
 
 // GET /api/tables
 // Poenta: vraća sve stolove (sa informacijom kom restoranu pripadaju)
@@ -23,6 +25,9 @@ export async function GET() {
 // Poenta: dodaje novi sto u restoran
 export async function POST(req: Request) {
   try {
+    const guard = await requireRole(["MANAGER", "ADMIN"]);
+    if (!guard.ok) return guard.response;
+
     const body = await req.json();
 
     if (!body.restoranId || !body.brojStola || !body.kapacitet) {
